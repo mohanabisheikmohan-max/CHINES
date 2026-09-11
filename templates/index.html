@@ -1,0 +1,539 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chinese Food Study Assistant</title>
+    <style>
+        :root {
+            --bg: #0d1016;
+            --panel: rgba(22, 27, 38, 0.82);
+            --panel-strong: #171d29;
+            --line: rgba(255,255,255,0.09);
+            --text: #f5f7fb;
+            --muted: #9ba5b7;
+            --accent: #f5b942;
+            --accent-soft: rgba(245,185,66,0.14);
+            --user: #26364c;
+            --bot: #1a202b;
+        }
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+            color: var(--text);
+            background:
+                radial-gradient(circle at 85% 10%, rgba(245,185,66,.12), transparent 30%),
+                radial-gradient(circle at 10% 90%, rgba(82,116,255,.10), transparent 28%),
+                var(--bg);
+        }
+
+        .app {
+            width: min(1180px, 94vw);
+            height: min(780px, 92vh);
+            margin: 4vh auto;
+            display: grid;
+            grid-template-columns: 275px 1fr;
+            overflow: hidden;
+            border: 1px solid var(--line);
+            border-radius: 28px;
+            background: var(--panel);
+            backdrop-filter: blur(22px);
+            box-shadow: 0 30px 90px rgba(0,0,0,.42);
+        }
+
+        aside {
+            padding: 24px 18px;
+            border-right: 1px solid var(--line);
+            background: rgba(10,13,19,.38);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 30px;
+        }
+
+        .logo {
+            width: 44px;
+            height: 44px;
+            display: grid;
+            place-items: center;
+            border-radius: 14px;
+            background: linear-gradient(135deg, #e94b35, #f5b942);
+            font-size: 22px;
+            box-shadow: 0 10px 28px rgba(245,185,66,.2);
+        }
+
+        .brand h1 {
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.25;
+        }
+
+        .brand span {
+            color: var(--muted);
+            font-size: 11px;
+        }
+
+        .section-label {
+            margin: 0 8px 10px;
+            color: #6f7a8e;
+            font-size: 10px;
+            font-weight: 800;
+            letter-spacing: .13em;
+            text-transform: uppercase;
+        }
+
+        .topics {
+            display: grid;
+            gap: 7px;
+        }
+
+        .topic {
+            border: 1px solid transparent;
+            border-radius: 12px;
+            padding: 11px 12px;
+            color: #c9d0dc;
+            background: transparent;
+            text-align: left;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .topic:hover {
+            border-color: var(--line);
+            background: var(--accent-soft);
+            color: var(--text);
+            transform: translateX(2px);
+        }
+
+        .topic b { display: block; font-size: 12px; }
+        .topic small { color: #737e91; font-size: 10px; }
+
+        .scope {
+            margin-top: auto;
+            padding: 14px;
+            border: 1px solid rgba(245,185,66,.18);
+            border-radius: 16px;
+            background: var(--accent-soft);
+        }
+
+        .scope strong { font-size: 11px; }
+        .scope p { margin: 6px 0 0; color: var(--muted); font-size: 10px; line-height: 1.5; }
+
+        main {
+            min-width: 0;
+            display: grid;
+            grid-template-rows: auto 1fr auto;
+        }
+
+        header {
+            min-height: 76px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 18px 24px;
+            border-bottom: 1px solid var(--line);
+        }
+
+        .status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #6ee7a8;
+            box-shadow: 0 0 0 5px rgba(110,231,168,.08);
+        }
+
+        .status strong { font-size: 13px; }
+        .status span { display: block; color: var(--muted); font-size: 10px; margin-top: 2px; }
+
+        .model {
+            padding: 7px 10px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: #cbd2df;
+            font-size: 9px;
+            font-weight: 800;
+            letter-spacing: .08em;
+        }
+
+        #chat {
+            overflow-y: auto;
+            padding: 30px clamp(18px, 5vw, 60px);
+            scroll-behavior: smooth;
+        }
+
+        .welcome {
+            max-width: 650px;
+            margin: 8vh auto 0;
+            text-align: center;
+        }
+
+        .welcome-icon {
+            width: 74px;
+            height: 74px;
+            margin: 0 auto 18px;
+            display: grid;
+            place-items: center;
+            border-radius: 24px;
+            background: linear-gradient(145deg, rgba(233,75,53,.2), rgba(245,185,66,.14));
+            border: 1px solid rgba(245,185,66,.2);
+            font-size: 35px;
+        }
+
+        .welcome h2 {
+            margin: 0;
+            font-size: clamp(24px, 4vw, 38px);
+            letter-spacing: -.04em;
+        }
+
+        .welcome p {
+            margin: 12px auto 24px;
+            max-width: 510px;
+            color: var(--muted);
+            line-height: 1.6;
+            font-size: 13px;
+        }
+
+        .chips {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .chip {
+            padding: 9px 12px;
+            border: 1px solid var(--line);
+            border-radius: 999px;
+            color: #c8cfda;
+            background: rgba(255,255,255,.025);
+            cursor: pointer;
+            font-size: 11px;
+            transition: .2s ease;
+        }
+
+        .chip:hover { background: var(--accent-soft); border-color: rgba(245,185,66,.25); }
+
+        .message {
+            display: flex;
+            gap: 11px;
+            margin: 0 auto 20px;
+            max-width: 760px;
+            animation: rise .22s ease;
+        }
+
+        .message.user { justify-content: flex-end; }
+        .message.user .avatar { order: 2; }
+
+        .avatar {
+            width: 32px;
+            height: 32px;
+            flex: 0 0 32px;
+            display: grid;
+            place-items: center;
+            border-radius: 11px;
+            background: #202736;
+            font-size: 14px;
+        }
+
+        .message.user .avatar { background: #304761; }
+
+        .bubble {
+            max-width: min(78%, 650px);
+            padding: 12px 15px;
+            border: 1px solid var(--line);
+            border-radius: 17px;
+            background: var(--bot);
+            color: #e9edf4;
+            font-size: 13px;
+            line-height: 1.65;
+            white-space: pre-wrap;
+        }
+
+        .message.user .bubble {
+            background: var(--user);
+            border-color: rgba(130,170,220,.15);
+        }
+
+        .composer {
+            padding: 16px 24px 20px;
+            border-top: 1px solid var(--line);
+        }
+
+        .input-wrap {
+            display: flex;
+            align-items: flex-end;
+            gap: 9px;
+            max-width: 820px;
+            margin: auto;
+            padding: 8px 8px 8px 15px;
+            border: 1px solid var(--line);
+            border-radius: 19px;
+            background: rgba(9,12,17,.72);
+            box-shadow: 0 10px 35px rgba(0,0,0,.18);
+        }
+
+        textarea {
+            flex: 1;
+            min-height: 38px;
+            max-height: 130px;
+            resize: none;
+            border: 0;
+            outline: 0;
+            background: transparent;
+            color: var(--text);
+            font: inherit;
+            font-size: 13px;
+            line-height: 1.5;
+            padding: 8px 0;
+        }
+
+        textarea::placeholder { color: #687286; }
+
+        #send {
+            width: 38px;
+            height: 38px;
+            flex: 0 0 38px;
+            border: 0;
+            border-radius: 13px;
+            background: var(--accent);
+            color: #17120a;
+            cursor: pointer;
+            font-weight: 900;
+            transition: .2s ease;
+        }
+
+        #send:hover { transform: translateY(-1px); filter: brightness(1.06); }
+        #send:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+        .hint {
+            margin: 8px 0 0;
+            text-align: center;
+            color: #596375;
+            font-size: 9px;
+        }
+
+        .typing {
+            display: inline-flex;
+            gap: 4px;
+            align-items: center;
+        }
+
+        .typing i {
+            width: 5px;
+            height: 5px;
+            border-radius: 50%;
+            background: #9099aa;
+            animation: pulse 1s infinite ease-in-out;
+        }
+
+        .typing i:nth-child(2) { animation-delay: .15s; }
+        .typing i:nth-child(3) { animation-delay: .3s; }
+
+        @keyframes pulse { 50% { opacity: .25; transform: translateY(-2px); } }
+        @keyframes rise { from { opacity: 0; transform: translateY(5px); } }
+
+        @media (max-width: 780px) {
+            .app {
+                width: 100%;
+                height: 100vh;
+                margin: 0;
+                border: 0;
+                border-radius: 0;
+                grid-template-columns: 1fr;
+            }
+
+            aside { display: none; }
+            header { padding: 16px 18px; }
+            .model { display: none; }
+            #chat { padding: 24px 16px; }
+            .bubble { max-width: 86%; }
+            .composer { padding: 12px 12px 15px; }
+        }
+    </style>
+</head>
+<body>
+<div class="app">
+    <aside>
+        <div class="brand">
+            <div class="logo">🥢</div>
+            <div>
+                <h1>Chinese Food<br>Study Assistant</h1>
+                <span>Focused learning companion</span>
+            </div>
+        </div>
+
+        <p class="section-label">Explore</p>
+        <div class="topics">
+            <button class="topic" data-prompt="Explain popular regional cuisines in China and what makes each distinctive.">
+                <b>Regional cuisines</b><small>Eight major culinary traditions</small>
+            </button>
+            <button class="topic" data-prompt="Explain the main ingredients and techniques used in traditional Chinese cooking.">
+                <b>Ingredients & techniques</b><small>Build culinary foundations</small>
+            </button>
+            <button class="topic" data-prompt="Explain the cultural meaning of Chinese festival foods.">
+                <b>Festival foods</b><small>Food, history & culture</small>
+            </button>
+            <button class="topic" data-prompt="Explain the role of noodles and rice in Chinese cuisine.">
+                <b>Rice & noodles</b><small>Staples across regions</small>
+            </button>
+            <button class="topic" data-prompt="Explain the food science behind stir-frying.">
+                <b>Food science</b><small>Learn the why behind cooking</small>
+            </button>
+        </div>
+
+        <div class="scope">
+            <strong>🎯 Focus mode</strong>
+            <p>This assistant answers Chinese food and directly related study questions only.</p>
+        </div>
+    </aside>
+
+    <main>
+        <header>
+            <div class="status">
+                <div class="dot"></div>
+                <div>
+                    <strong>Chinese Food Study Assistant</strong>
+                    <span>Ready for a food-focused question</span>
+                </div>
+            </div>
+            <div class="model">GEMINI 3.1 FLASH-LITE</div>
+        </header>
+
+        <section id="chat">
+            <div class="welcome" id="welcome">
+                <div class="welcome-icon">🥟</div>
+                <h2>Learn Chinese food,<br>one question at a time.</h2>
+                <p>Explore Chinese cuisine, ingredients, cooking methods, regional traditions, food culture, and related study topics.</p>
+                <div class="chips">
+                    <button class="chip" data-prompt="What are the main regional cuisines of China?">Regional cuisines</button>
+                    <button class="chip" data-prompt="How does stir-frying work from a food science perspective?">Stir-frying science</button>
+                    <button class="chip" data-prompt="What are some important Chinese festival foods and their meanings?">Festival foods</button>
+                    <button class="chip" data-prompt="Explain the difference between steamed and boiled dumplings.">Dumplings</button>
+                </div>
+            </div>
+        </section>
+
+        <div class="composer">
+            <div class="input-wrap">
+                <textarea id="message" rows="1" placeholder="Ask about Chinese food or related study..."></textarea>
+                <button id="send" aria-label="Send message">➤</button>
+            </div>
+            <p class="hint">Chinese food & related study only · Enter to send · Shift + Enter for a new line</p>
+        </div>
+    </main>
+</div>
+
+<script>
+    const chat = document.getElementById("chat");
+    const input = document.getElementById("message");
+    const send = document.getElementById("send");
+    const welcome = document.getElementById("welcome");
+
+    function addMessage(text, role) {
+        if (welcome) welcome.remove();
+
+        const row = document.createElement("div");
+        row.className = `message ${role}`;
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = role === "user" ? "You" : "🥢";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.textContent = text;
+
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        chat.appendChild(row);
+        chat.scrollTop = chat.scrollHeight;
+        return row;
+    }
+
+    function addTyping() {
+        const row = document.createElement("div");
+        row.className = "message bot";
+        row.id = "typing";
+
+        const avatar = document.createElement("div");
+        avatar.className = "avatar";
+        avatar.textContent = "🥢";
+
+        const bubble = document.createElement("div");
+        bubble.className = "bubble";
+        bubble.innerHTML = '<span class="typing"><i></i><i></i><i></i></span>';
+
+        row.appendChild(avatar);
+        row.appendChild(bubble);
+        chat.appendChild(row);
+        chat.scrollTop = chat.scrollHeight;
+    }
+
+    async function sendMessage(text = input.value.trim()) {
+        if (!text || send.disabled) return;
+
+        input.value = "";
+        input.style.height = "auto";
+        addMessage(text, "user");
+        addTyping();
+        send.disabled = true;
+
+        try {
+            const response = await fetch("/api/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: text })
+            });
+
+            const data = await response.json();
+            document.getElementById("typing")?.remove();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Request failed.");
+            }
+
+            addMessage(data.reply, "bot");
+        } catch (error) {
+            document.getElementById("typing")?.remove();
+            addMessage(error.message || "Something went wrong. Please try again.", "bot");
+        } finally {
+            send.disabled = false;
+            input.focus();
+        }
+    }
+
+    send.addEventListener("click", () => sendMessage());
+
+    input.addEventListener("keydown", event => {
+        if (event.key === "Enter" && !event.shiftKey) {
+            event.preventDefault();
+            sendMessage();
+        }
+    });
+
+    input.addEventListener("input", () => {
+        input.style.height = "auto";
+        input.style.height = Math.min(input.scrollHeight, 130) + "px";
+    });
+
+    document.querySelectorAll("[data-prompt]").forEach(button => {
+        button.addEventListener("click", () => sendMessage(button.dataset.prompt));
+    });
+</script>
+</body>
+</html>
